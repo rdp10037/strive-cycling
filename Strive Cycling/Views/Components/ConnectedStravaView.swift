@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ConnectStravaView: View {
     
-    //  @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authVm: StravaAuthViewModel
     @Binding var showOnboardingView: Bool
     
     var body: some View {
@@ -46,7 +46,7 @@ struct ConnectStravaView: View {
                 
                 // Connect Button
                 Button(action: {
-                    // Trigger OAuth flow
+                    authVm.connect()
                 }) {
                     Label("Connect to Strava", systemImage: "link")
                         .padding()
@@ -75,4 +75,5 @@ struct ConnectStravaView: View {
 
 #Preview {
     ConnectStravaView(showOnboardingView: .constant(false))
+        .environmentObject(StravaAuthViewModel())
 }

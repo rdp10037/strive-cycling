@@ -10,64 +10,72 @@ import SwiftUI
 
 struct StravaPrimingView: View {
     
+    @EnvironmentObject var authVm: StravaAuthViewModel
+    @EnvironmentObject var activityVm: StravaActivityViewModel
+    
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
-                
-                Image(.stravaLogo)
-                    .resizable()
-                    .frame(width: 90, height: 90)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .shadow(color: .gray.opacity(0.3), radius: 16)
-                    .padding(.bottom, 12)
-            
-                Text("Connect with Strava")
-                    .font(.title)
-                    .fontWeight(.bold)
-            
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("To get started, Strive connects with your Strava account to import your cycling activity data.")
+       
+            if authVm.isAuthorized {
+                StravaAlreadyConnectedView()
+            } else {
+                VStack(spacing: 24) {
                     
-                    Text("This allows us to:")
-                    VStack(alignment: .leading, spacing: 6) {
-                        Label("Display your ride history and stats", systemImage: "bicycle")
-                        Label("Log nutrition and recovery data for each ride", systemImage: "leaf")
-                        Label("Personalize your dashboard and insights", systemImage: "chart.bar")
+                    Image(.stravaLogo)
+                        .resizable()
+                        .frame(width: 90, height: 90)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: .gray.opacity(0.3), radius: 16)
+                        .padding(.bottom, 12)
+                
+                    Text("Connect with Strava")
+                        .font(.title)
+                        .fontWeight(.bold)
+                
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("To get started, Strive connects with your Strava account to import your cycling activity data.")
+                        
+                        Text("This allows us to:")
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label("Display your ride history and stats", systemImage: "bicycle")
+                            Label("Log nutrition and recovery data for each ride", systemImage: "leaf")
+                            Label("Personalize your dashboard and insights", systemImage: "chart.bar")
+                        }
+                        
+                        Text("Authentication is secure and handled through Strava. We only read data — nothing is posted or changed on your behalf.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .font(.subheadline)
+                    .padding(.horizontal)
+                    
+                    // Connect Button
+                    Button(action: {
+                        authVm.connect()
+                    }) {
+                        Label("Connect to Strava", systemImage: "link")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.stravaOrange)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Not Now")
+                            .foregroundStyle(Color.secondary)
                     }
                     
-                    Text("Authentication is secure and handled through Strava. We only read data — nothing is posted or changed on your behalf.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                    Spacer()
                 }
-                .font(.subheadline)
-                .padding(.horizontal)
-                
-                // Connect Button
-                Button(action: {
-                    // Trigger OAuth flow
-                }) {
-                    Label("Connect to Strava", systemImage: "link")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.stravaOrange)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                }
-                .padding(.horizontal)
-                
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Not Now")
-                        .foregroundStyle(Color.secondary)
-                }
-                
-                Spacer()
+                .padding(.top, 40)
+                .navigationTitle("Get Started")
             }
-            .padding(.top, 40)
-            .navigationTitle("Get Started")
         }
     }
 }
@@ -75,6 +83,8 @@ struct StravaPrimingView: View {
 
 #Preview {
     StravaPrimingView()
+        .environmentObject(StravaAuthViewModel())
+        .environmentObject(StravaActivityViewModel())
 }
 
 

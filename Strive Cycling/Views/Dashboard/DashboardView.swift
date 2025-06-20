@@ -9,6 +9,10 @@ import SwiftUI
 import Charts
 
 struct DashboardView: View {
+    
+    @EnvironmentObject var authVm: StravaAuthViewModel
+    @EnvironmentObject var activityVM: StravaActivityViewModel
+    
     @State private var streakCount = 4 // Placeholder
     @State private var todaysActivities: [Activity] = Activity.mockToday()
     @State private var friendActivities: [Activity] = Activity.mockFriends()
@@ -21,74 +25,61 @@ struct DashboardView: View {
         let totalTime = mockHistoricalData.reduce(0) { $0 + $1.duration }
         return Double(totalTime) / Double(mockHistoricalData.count)
     }
-
+    
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-              
-                    /// Top chart section (Not in use atm in favor of the heat map
-//                    VStack (alignment: .leading){
-//                        HStack {
-//                            VStack (alignment: .leading){
-//                                Label("Ride Time", systemImage: "figure.outdoor.cycle")
-//                                    .font(.title3.bold())
-//                                    .foregroundStyle(.pink)
-//                                Text("Avg \(Int(avgRideTime)) minutes per ride")
-//                                    .font(.caption)
-//                            }
-//                            Spacer()
-//                            Image(systemName: "chevron.right")
-//                        }
-//                        .padding(.bottom)
-//                        
-//                        Chart {
-//                            RuleMark(y: .value("Goal", avgRideTime))
-//                                .foregroundStyle(Color.secondary)
-//                                .lineStyle(.init(lineWidth: 1, dash: [5]))
-//                            
-//                            ForEach(mockHistoricalData) { activity in
-//                            BarMark(
-//                                x: .value("Date", activity.date, unit: .day),
-//                                y: .value("Duration", activity.duration)
-//                                )
-//                            .foregroundStyle(Color.pink.gradient)
-//                            }
-//                        }
-//                    }
-//                    .padding()
-//                    .background(RoundedRectangle(cornerRadius: 12).fill(.ultraThinMaterial))
-//                    .frame(height: UIScreen.main.bounds.width * 0.6)
-                    
-                    
+                
+                    /// Ride Time Heat Map Section
                     HeatMapCalendarView()
                     
+                    
+                    
                     Button("Connect with Strava") {
-                        StravaAuthManager.shared.authorize()
+                        authVm.connect()
                     }
-                    
+               
                     Button {
-                        StravaActivityManager.shared.fetchRecentActivities()
+                        UIApplication.shared.inAppNotification(adaptForDynamicIsland: true, timeout: 3.3, swipeToClose: true) {
+                            InAppNotificationPopOver(headline: "Testing", bodyText: "Testing", sfSymbol: nil, customImage: .stravaLogo)
+                        }
                     } label: {
-                        Text("Fetch Activity")
+                        Text("Test in app notifications")
                     }
-
-                  
                     
-                    /// Activity List Section
-                    VStack(spacing: 20) {
-                        ForEach(mockHistoricalData) { activity in
-                            FeedActivityRowView(activity: activity)
+                    
+                    if activityVM.isLoading {
+                        ProgressView()
+                    } else if let error = activityVM.errorMessage {
+                        Text("Error: \(error)")
+                            .foregroundColor(.red)
+                    } else {
+                        ForEach(activityVM.activities) { activity in
+                            NavigationLink {
+                                ActivityDetailView(activity: activity)
+                            } label: {
+                                StravaActivityRowView(activity: activity)
+                            }
+                            .foregroundStyle(Color.primary)
                             Divider()
                                 .padding(.horizontal)
                         }
                     }
-                    .padding(.vertical)
                 }
                 .padding()
+                .onAppear {
+                    if activityVM.activities.isEmpty {
+                        activityVM.fetchRecentActivities()
+                    }
+                }
+               
             }
             .navigationTitle("My Activity")
             .scrollIndicators(.hidden)
+            .refreshable {
+                activityVM.fetchRecentActivities()
+            }
         }
     }
 }
@@ -96,4 +87,6 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView()
+        .environmentObject(StravaAuthViewModel())
+        .environmentObject(StravaActivityViewModel())
 }

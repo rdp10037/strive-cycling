@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct ActivityDetailView: View {
-    
-    let activity: ActivityMetric
+
+    let activity: StravaActivity
 
     @State private var waterMl: Int = 0
     @State private var gels: Double = 0
@@ -23,33 +24,49 @@ struct ActivityDetailView: View {
 
     var body: some View {
         Form {
+            Section {
+                        Text(activity.name)
+                            .font(.title2)
+                            .bold()
+                        if let desc = activity.description, !desc.isEmpty {
+                            Text(desc)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+            
             Section(header: Text("Activity Summary")) {
-                summaryRow("Type", activity.activityType)
+                summaryRow("Type", activity.type)
 
-                let distanceInMiles = Measurement(value: activity.distance, unit: UnitLength.kilometers)
+                let distanceInMiles = Measurement(value: activity.distance, unit: UnitLength.meters)
                     .converted(to: .miles)
                 let formattedDistance = distanceInMiles.formatted(.measurement(width: .abbreviated, usage: .road))
                 summaryRow("Distance", formattedDistance)
 
-                summaryRow("Duration", "\(Int(activity.duration)) min")
-                summaryRow("Start", activity.startTime.formatted(date: .abbreviated, time: .shortened))
-                summaryRow("End", activity.endTime.formatted(date: .abbreviated, time: .shortened))
-                summaryRow("Calories", "\(activity.calories) kcal")
+                summaryRow("Duration", "\(Int(activity.duration / 60)) min")
+                summaryRow("Start", activity.startDate.formatted(date: .abbreviated, time: .shortened))
+                summaryRow("Calories", "\(Int(activity.calories ?? 0)) kcal")
 
                 if let hr = activity.averageHeartRate {
-                    summaryRow("Avg HR", "\(hr) bpm")
+                    summaryRow("Avg HR", "\(Int(hr)) bpm")
                 }
                 if let watts = activity.averagePower {
-                    summaryRow("Avg Power", "\(watts) W")
+                    summaryRow("Avg Power", "\(Int(watts)) W")
                 }
             }
 
             Section(header: Text("Ride Route")) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.15))
-                    .frame(height: 200)
-                    .overlay(Text("Map Coming Soon").foregroundColor(.secondary))
-                    .cornerRadius(8)
+                if !activity.decodedCoordinates.isEmpty {
+                    ActivityMapSnapshotView(coordinates: activity.decodedCoordinates)
+                        .frame(height: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.15))
+                        .frame(height: 200)
+                        .overlay(Text("No Map Data").foregroundColor(.secondary))
+                        .cornerRadius(8)
+                }
             }
 
             Section(header: Text("Nutrition")) {
@@ -94,7 +111,7 @@ struct ActivityDetailView: View {
     private func saveNutritionLog() {
         var allLogs = loadAllLogs()
         let log = ActivityNutrition(
-            id: activity.id.uuidString,
+            id: activity.id,
             waterMl: waterMl,
             gels: gels,
             gelType: gelType.isEmpty ? nil : gelType,
@@ -104,14 +121,14 @@ struct ActivityDetailView: View {
             notes: notes.isEmpty ? nil : notes
         )
 
-        if let encoded = try? JSONEncoder().encode(allLogs.merging([activity.id.uuidString: log], uniquingKeysWith: { $1 })) {
+        if let encoded = try? JSONEncoder().encode(allLogs.merging([activity.id: log], uniquingKeysWith: { $1 })) {
             nutritionData = encoded
         }
     }
 
     private func loadSavedLog() {
         let allLogs = loadAllLogs()
-        if let existing = allLogs[activity.id.uuidString] {
+        if let existing = allLogs[activity.id] {
             waterMl = existing.waterMl ?? 0
             gels = existing.gels ?? 0
             gelType = existing.gelType ?? ""
@@ -130,25 +147,46 @@ struct ActivityDetailView: View {
     }
 }
 
-
-
-#Preview("Metric-Based View") {
+#Preview("StravaActivity View") {
     NavigationStack {
-        ActivityDetailView(activity: ActivityMetric(
-            id: UUID(),
+        ActivityDetailView(activity: StravaActivity(
+            id: "123456",
             name: "Morning Ride",
-            distance: 42.7,
-            duration: 88,
-            userName: "Rob",
-            activityType: "Ride",
-            activitySubType: nil,
-            date: .now.addingTimeInterval(-5400),
-            calories: 740,
-            description: "Felt solid, fast group ride.",
-            averageHeartRate: 145,
-            averagePower: 218
+            type: "Ride",
+            distance: 40233,
+            duration: 3780,
+            startDate: Date(),
+            calories: 850,
+            averageHeartRate: 140,
+            averagePower: 180,
+            polyline: nil,
+            startLatitude: 37.7749,
+            startLongitude: -122.4194,
+            endLatitude: 37.7799,
+            endLongitude: -122.4144,
+            description: "Felt solid, fast group ride. Next time I would like too go longer.",
+            totalElevationGain: 430,
+            startDateLocal: Date(),
+            timezone: "(GMT-08:00) America/Los_Angeles",
+            commute: false,
+            trainer: false,
+            manual: false,
+            locationCity: "San Francisco",
+            locationState: "CA",
+            locationCountry: "USA",
+            elevHigh: 120.5,
+            elevLow: 5.2,
+            averageSpeed: 5.2,
+            maxSpeed: 12.1,
+            averageCadence: 82,
+            averageTemp: 67,
+            sufferScore: 124,
+            maxHeartrate: 172,
+            hasHeartrate: true,
+            deviceWatts: true,
+            kilojoules: 950,
+            prCount: 3,
+            kudosCount: 21
         ))
     }
 }
-
-
