@@ -27,13 +27,13 @@ final class StravaActivityManager {
     func fetchRecentActivities() {
         ensureValidToken { token in
             guard let token = token else {
-                print("❌ Missing or invalid access token")
+                print("Missing or invalid access token")
                 return
             }
 
             let urlString = "\(self.baseURL)/athlete/activities?per_page=5"
             guard let url = URL(string: urlString) else {
-                print("❌ Invalid activities URL")
+                print("Invalid activities URL")
                 return
             }
 
@@ -42,12 +42,12 @@ final class StravaActivityManager {
 
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
-                    print("❌ Network error: \(error.localizedDescription)")
+                    print("Network error: \(error.localizedDescription)")
                     return
                 }
 
                 guard let data = data else {
-                    print("❌ No data returned")
+                    print("No data returned")
                     return
                 }
 
@@ -55,12 +55,12 @@ final class StravaActivityManager {
                     if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
                         for dict in jsonArray {
                             if let activity = self.parseActivity(from: dict) {
-                                print("✅ Activity: \(activity.name), Distance: \(activity.distance), Date: \(activity.startDate)")
+                                print("Activity: \(activity.name), Distance: \(activity.distance), Date: \(activity.startDate)")
                             }
                         }
                     }
                 } catch {
-                    print("❌ JSON parsing error: \(error)")
+                    print("JSON parsing error: \(error)")
                 }
             }.resume()
         }

@@ -30,9 +30,22 @@
 		1BDD0DF42E036E390000885A /* Strive CyclingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Strive CyclingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1BC9153C2E05695000303ECD /* Exceptions for "Strive Cycling" folder in "Strive Cycling" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Secrets.xcconfig,
+			);
+			target = 1BDD0DDC2E036E370000885A /* Strive Cycling */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1BDD0DDF2E036E370000885A /* Strive Cycling */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1BC9153C2E05695000303ECD /* Exceptions for "Strive Cycling" folder in "Strive Cycling" target */,
+			);
 			path = "Strive Cycling";
 			sourceTree = "<group>";
 		};
@@ -80,7 +93,6 @@
 				1BDD0DED2E036E390000885A /* Strive CyclingTests */,
 				1BDD0DF72E036E390000885A /* Strive CyclingUITests */,
 				1BDD0DDE2E036E370000885A /* Products */,
-				1B26468C2E05283800884DFE /* Secrets.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};

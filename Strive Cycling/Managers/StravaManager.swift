@@ -28,3 +28,4 @@ struct ActivityMetric: Identifiable, Codable {
     var startTime: Date { date }
     var endTime: Date { date.addingTimeInterval(duration * 60) }
 }
+ 
