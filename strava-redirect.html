@@ -1,0 +1,17 @@
+<!-- strava-redirect.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Redirecting…</title>
+    <script>
+      const code = new URLSearchParams(window.location.search).get("code");
+      if (code) {
+        window.location.href = `strive://auth?code=${code}`;
+      }
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to the app…</p>
+  </body>
+</html>
