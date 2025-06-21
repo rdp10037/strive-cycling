@@ -102,15 +102,23 @@ final class StravaAuthViewModel: ObservableObject {
         return Date() < expiration
     }
     
+    /// Initiates the Strava OAuth authorization flow and updates the connection state.
+    ///
+    /// This method performs the following steps:
+    /// 1. Calls the async `authorize()` method on `StravaAuthManager`, which presents an `ASWebAuthenticationSession`.
+    /// 2. If successful, updates `isConnected` and fetches the authenticated athlete’s profile.
+    /// 3. If unsuccessful, sets an appropriate error message for UI display.
+    ///
+    /// - Note: This function must be called from the main actor context to safely update UI-related properties.
     func connect() {
-        StravaAuthManager.shared.authorize { [weak self] success in
-            DispatchQueue.main.async {
-                self?.isConnected = success
-                if success {
-                    Task { await self?.fetchAthleteProfile() }
-                } else {
-                    self?.errorMessage = "Failed to connect to Strava."
-                }
+        Task {
+            let success = await StravaAuthManager.shared.authorize()
+            self.isConnected = success
+
+            if success {
+                await fetchAthleteProfile()
+            } else {
+                self.errorMessage = "Failed to connect to Strava."
             }
         }
     }
@@ -126,15 +134,18 @@ final class StravaAuthViewModel: ObservableObject {
         }
     }
     
+    /// Refreshes the Strava access token if it is missing or expired.
+    /// This ensures API calls are authorized with a valid token.
+    ///
+    /// If the refresh fails, an error message will be set for UI display.
     func refreshTokenIfNeeded() async {
         let token = StravaAuthManager.shared.accessToken
         let expiration = StravaAuthManager.shared.tokenExpiration
-        
+
         if token == nil || (expiration != nil && Date() >= expiration!) {
-            await withCheckedContinuation { continuation in
-                StravaAuthManager.shared.refreshAccessToken { success in
-                    continuation.resume()
-                }
+            let success = await StravaAuthManager.shared.refreshAccessToken()
+            if !success {
+                errorMessage = "Failed to refresh access token. Please try reconnecting to Strava."
             }
         }
     }

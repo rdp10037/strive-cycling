@@ -118,29 +118,29 @@ final class StravaActivityManager {
     }
     
     
-    /// Ensures that a valid Strava access token is available
+    /// Ensures that a valid Strava access token is available before making API requests.
     ///
-    ///The function ensures that a valid (non-expired) Strava access token is available before making API requests. If the existing token is valid, it returns it immediately. If not, it attempts to refresh the token and return the new one, or throws an error if that fails.
+    /// If the current token exists and has not expired, it is returned.
+    /// Otherwise, this method attempts to refresh the token and return the new value.
     ///
-    /// - Returns: Returns a Strava token of type `String`
+    /// - Returns: A valid Strava access token as a `String`.
+    /// - Throws: An error if token refresh fails or a valid token cannot be obtained.
     private func ensureValidToken() async throws -> String {
         if let token = await StravaAuthManager.shared.accessToken,
            let expiration = await StravaAuthManager.shared.tokenExpiration,
            Date() < expiration {
             return token
         }
-        
-        let token = try await withCheckedThrowingContinuation { continuation in
-            StravaAuthManager.shared.refreshAccessToken { success in
-                if success, let token = StravaAuthManager.shared.accessToken {
-                    continuation.resume(returning: token)
-                } else {
-                    continuation.resume(throwing: NSError(domain: "Token refresh failed", code: -1))
-                }
-            }
+
+        let success = await StravaAuthManager.shared.refreshAccessToken()
+
+        guard success, let newToken = await StravaAuthManager.shared.accessToken else {
+            throw NSError(domain: "StravaAuth", code: -1, userInfo: [NSLocalizedDescriptionKey: "Token refresh failed"])
         }
-        return token
+
+        return newToken
     }
+
     
     
     /// Parse Strava activity JSON data
