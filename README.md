@@ -4,7 +4,7 @@ Strive Cycling is an iOS app built in SwiftUI that integrates with the Strava AP
 
 This project serves two purposes:
 1. **Production Goal**: Strive Cycling is an ongoing project intended for eventual public release on the App Store.
-2. **Developer Demonstration**: It is currently designed as a coding exercise and demonstration of modern iOS practices using SwiftUI, swift concurrency, and third-party API integration.
+2. **Developer Demonstration**: It is currently designed as a demonstration of modern iOS practices using SwiftUI, swift concurrency, and third-party API integration.
 
 ---
 
@@ -35,7 +35,7 @@ This project serves two purposes:
 
 3. **Configure Secrets (Two Approaches)**
 
-   #### Recommended Approach (Using `.xcconfig` for Security)
+   #### Recommended Approach (Using `.xcconfig`)
    - Create a `secrets.xcconfig` file in the root of the project with the following content:
      ```
      STRAVA_CLIENT_ID=your-client-id
@@ -52,8 +52,14 @@ This project serves two purposes:
      ```swift
      private let clientID = Bundle.main.object(forInfoDictionaryKey: "STRAVA_CLIENT_ID") as? String ?? ""
      private let clientSecret = Bundle.main.object(forInfoDictionaryKey: "STRAVA_CLIENT_SECRET") as? String ?? ""
-     private let redirectURI = "https://rdp10037.github.io/strive-cycling/strava-redirect.html"
      ```
+
+   - Add a URL Scheme in Xcode:
+     - Open your **target** → **Info** → **URL Types**
+     - Add a new entry:
+       - Identifier: `app.strivecycling`
+       - URL Schemes: `strive`
+         
    - Be sure to add `secrets.xcconfig` to `.gitignore` to avoid committing sensitive keys.
 
    #### Alternative (For Local Testing Only)
@@ -61,8 +67,13 @@ This project serves two purposes:
      ```swift
      private let clientID = "your-client-id"
      private let clientSecret = "your-client-secret"
-     private let redirectURI = "https://rdp10037.github.io/strive-cycling/strava-redirect.html"
      ```
+   - Add a URL Scheme in Xcode:
+     - Open your **target** → **Info** → **URL Types**
+     - Add a new entry:
+       - Identifier: `app.strivecycling`
+       - URL Schemes: `strive`
+         
    - **Warning**: Never expose hardcoded credentials in a public repository. Revoke any exposed secrets in your Strava dashboard immediately.
 
 4. **Open and Run**
@@ -71,7 +82,7 @@ This project serves two purposes:
 
 ---
 
-## Features
+## Core Features
 
 - **Strava OAuth2 Integration**: Securely connects to Strava, handling token storage and refresh via Keychain.
 - **Activity Feed**: Displays recent rides with map previews and performance stats.
@@ -79,11 +90,30 @@ This project serves two purposes:
 - **Profile View**: Shows user name, avatar, and key metrics from Strava’s athlete and stats endpoints.
 - **MapKit Integration**: Visualizes route data using `MapSnapshotter` and custom overlays.
 
-
-![Group 1000006259 (1)](https://github.com/user-attachments/assets/2eb33a50-6775-4961-98ba-bbf46a574307)
-
+![Group 1000006263](https://github.com/user-attachments/assets/b9e1a23e-c7ba-4aa7-b454-9000082ef377)
 
 
+## Highlights
+
+This section shares some of the more unique implementations that may be useful or interesting to other developers.
+
+### 🗺️ Polyline Decoding & Map Rendering
+
+Strava returns activity route data as encoded polylines. This project includes a clean, reusable utility that:
+
+- Decodes the encoded polyline into `[CLLocationCoordinate2D]`
+- Converts coordinates to an `MKPolyline`
+- Renders a high-performance map preview using `MKMapSnapshotter`
+- Optionally displays start/end pins and overlays in `ActivityMapSnapshotView`
+
+This enables performant and visually engaging route previews even in list views.
+
+**Relevant Code:**
+- `decodePolyline(_:)` utility
+- `ActivityMapSnapshotView`
+- `StravaActivity.decodedCoordinates`, `startCoordinate`, `endCoordinate` computed properties
+
+---
 
 ---
 
