@@ -13,7 +13,6 @@ struct HeatMapDataPoint: Hashable {
 }
 
 
-
 struct HeatMapCalendarView: View {
     
     private static func date(_ string: String) -> Date {
@@ -84,11 +83,11 @@ struct HeatMapCalendarView: View {
     
     private func color(for value: Int) -> Color {
         switch value {
-        case 5...: return .pink
-        case 4: return .icon.opacity(0.8)
-        case 3: return .icon.opacity(0.6)
-        case 2: return .icon.opacity(0.4)
-        case 1: return .icon.opacity(0.2)
+        case 5...: return .green
+        case 4: return .green.opacity(0.8)
+        case 3: return .green.opacity(0.6)
+        case 2: return .green.opacity(0.4)
+        case 1: return .green.opacity(0.2)
         default: return .gray.opacity(0.1)
         }
     }

@@ -59,7 +59,9 @@ struct ContentView: View {
                       .presentationDetents([.large])
                       .interactiveDismissDisabled()
               }
-
+              .task {
+                  await authVm.fetchAthleteProfile()
+              }
     }
 }
 
