@@ -52,6 +52,7 @@ struct NutritionCSView: View {
                       .multilineTextAlignment(.center)
                       .padding(.vertical, 40)
                   }
+        .background(Color.background.gradient)
                   .navigationTitle("Nutrition")
     }
 }

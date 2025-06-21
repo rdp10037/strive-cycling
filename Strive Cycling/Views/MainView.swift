@@ -34,6 +34,7 @@ struct MainView: View {
                     }
             }
         }
+        .background(Color.background)
         .sheet(isPresented: $showingStravaLinkSheet) {
             StravaPrimingView()
                 .presentationDetents([.large])

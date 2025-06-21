@@ -18,7 +18,7 @@ struct StravaActivityRowView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
-                        Text(activity.name)
+                        Text(activity.name ?? "NA")
                             .font(.headline)
                             .foregroundStyle(.primary)
                             .lineLimit(1)
@@ -32,7 +32,7 @@ struct StravaActivityRowView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                    Text(activity.type)
+                    Text(activity.type ?? "NA")
                         .font(.body)
                         .lineLimit(1)
                         .multilineTextAlignment(.leading)
@@ -51,7 +51,7 @@ struct StravaActivityRowView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(String(format: "%.1f", activity.distance / 1609.34)) // meters to miles
+                            Text(String(format: "%.1f", activity.distance ?? 0.0 / 1609.34)) // meters to miles
                                 .font(.headline)
                             Text("mi")
                                 .font(.subheadline)
@@ -63,7 +63,7 @@ struct StravaActivityRowView: View {
 
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(String(format: "%.0f", activity.duration / 60)) // seconds to minutes
+                            Text(String(format: "%.0f", activity.duration ?? 0.0 / 60)) // seconds to minutes
                                 .font(.headline)
                             Text("min")
                                 .font(.subheadline)

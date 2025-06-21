@@ -22,7 +22,7 @@ struct StravaAlreadyConnectedView: View {
                     .shadow(color: .gray.opacity(0.3), radius: 16)
                     .padding(.bottom, 12)
             
-                Text("You're Already Connected")
+                Text("You're Connected!")
                     .font(.title)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
@@ -42,7 +42,7 @@ struct StravaAlreadyConnectedView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Text("Got it")
+                    Text("Done")
                         .font(.headline)
                         .padding()
                         .frame(maxWidth: .infinity)

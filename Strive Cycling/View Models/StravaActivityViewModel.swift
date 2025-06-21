@@ -21,7 +21,7 @@ final class StravaActivityViewModel: ObservableObject {
 
         Task {
             do {
-                let activities = try await StravaActivityManager.shared.fetchRecentActivitiesAsync(count: 10)
+                let activities = try await StravaActivityManager.shared.fetchRecentActivitiesWithCount(count: 10)
                 self.activities = activities
             } catch {
                 self.errorMessage = error.localizedDescription
