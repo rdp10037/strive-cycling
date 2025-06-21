@@ -60,6 +60,7 @@ struct SleepCSView: View {
             .multilineTextAlignment(.center)
             .padding(.vertical, 40)
         }
+        .background(Color.background.gradient)
         .navigationTitle("Sleep")
     }
 }

@@ -22,6 +22,7 @@ import UIKit
 final class StravaAuthManager: NSObject, ASWebAuthenticationPresentationContextProviding {
     static let shared = StravaAuthManager()
     
+    /// Reference clientID and clientSecret from associated secrets.xcconfig + info.plist keys. For local testing connivance, set the values directly here.
     private let clientID = Bundle.main.object(forInfoDictionaryKey: "STRAVA_CLIENT_ID") as? String ?? ""
     private let clientSecret = Bundle.main.object(forInfoDictionaryKey: "STRAVA_CLIENT_SECRET") as? String ?? ""
     private let redirectURI = "https://rdp10037.github.io/strive-cycling/strava-redirect.html"

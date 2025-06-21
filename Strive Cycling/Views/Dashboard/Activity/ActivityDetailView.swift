@@ -25,7 +25,7 @@ struct ActivityDetailView: View {
     var body: some View {
         Form {
             Section {
-                        Text(activity.name)
+                Text(activity.name ?? "NA")
                             .font(.title2)
                             .bold()
                         if let desc = activity.description, !desc.isEmpty {
@@ -36,14 +36,14 @@ struct ActivityDetailView: View {
                     }
             
             Section(header: Text("Activity Summary")) {
-                summaryRow("Type", activity.type)
+                summaryRow("Type", activity.type ?? "NA")
 
-                let distanceInMiles = Measurement(value: activity.distance, unit: UnitLength.meters)
+                let distanceInMiles = Measurement(value: activity.distance ?? 0.0, unit: UnitLength.meters)
                     .converted(to: .miles)
                 let formattedDistance = distanceInMiles.formatted(.measurement(width: .abbreviated, usage: .road))
                 summaryRow("Distance", formattedDistance)
 
-                summaryRow("Duration", "\(Int(activity.duration / 60)) min")
+                summaryRow("Duration", "\(Int(activity.duration ?? 0 / 60)) min")
                 summaryRow("Start", activity.startDate.formatted(date: .abbreviated, time: .shortened))
                 summaryRow("Calories", "\(Int(activity.calories ?? 0)) kcal")
 

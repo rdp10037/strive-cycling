@@ -9,22 +9,20 @@ import Foundation
 import CoreLocation
 
 struct StravaActivity: Identifiable, Codable {
-    let id: String
-    let name: String
-    let type: String
-    let distance: Double
-    let duration: Double
-    let startDate: Date
+    let id: String      // Required
+    let name: String?
+    let type: String?
+    let distance: Double?
+    let duration: Double?
+    let startDate: Date  // Required
     let calories: Double?
     let averageHeartRate: Double?
     let averagePower: Double?
-    
     let polyline: String?
     let startLatitude: Double?
     let startLongitude: Double?
     let endLatitude: Double?
     let endLongitude: Double?
-    
     let description: String?
     let totalElevationGain: Double?
     let startDateLocal: Date?
@@ -65,23 +63,46 @@ struct StravaActivity: Identifiable, Codable {
     }
 }
 
+enum StravaError: Error {
+    case invalidURL
+    case invalidResponse
+    case invalidToken
+}
+
+// MARK: Strava Activity Manager
 final class StravaActivityManager {
+    
     static let shared = StravaActivityManager()
     
     private let baseURL = "https://www.strava.com/api/v3"
     
-    func fetchRecentActivitiesAsync(count: Int) async throws -> [StravaActivity] {
+    
+    /// Fetch given count of recent fitness activities from Strava.
+    ///
+    /// Fetches a specified number of recent activities from the Strava /athlete/activities endpoint and converts them to ``StravaActivity`` for use in the app.
+    ///
+    /// > Tip: This endpoint's data does not always contain complete activity info. For example, while it does contain most values you would expect about an activity, calorie data is missing. To fetch more granular data you must use an activity ID and fetch the specific activity via the appropriate Strava endpoint.
+    ///
+    /// - Parameter count: The desired count of recent activities as an `Int`. Subject to Strava's page count limit of 200 as of June 2025.
+    /// - Returns: Returns an  `Array` of ``StravaActivity``.
+    func fetchRecentActivitiesWithCount(count: Int) async throws -> [StravaActivity] {
         let token = try await ensureValidToken()
         
         let urlString = "\(baseURL)/athlete/activities?per_page=\(count)"
         guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
+            throw StravaError.invalidURL
         }
         
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        let (data, _) = try await URLSession.shared.data(for: request)
+        /// Make request
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        /// Check response codes
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw StravaError.invalidResponse
+        }
         
         guard let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
             throw NSError(domain: "Invalid JSON", code: -1)
@@ -90,21 +111,18 @@ final class StravaActivityManager {
         var activities: [StravaActivity] = []
         for dict in jsonArray {
             if let activity = parseActivity(from: dict) {
-                print("\n📌 Activity: \(activity.name)")
-                print("ID: \(activity.id)")
-                print("Type: \(activity.type)")
-                print("Distance: \(activity.distance) meters")
-                print("Duration: \(activity.duration) seconds")
-                print("Start Date: \(activity.startDate)")
-                print("Calories: \(activity.calories ?? 0)")
-                print("Heart Rate: \(activity.averageHeartRate ?? 0)")
-                print("Power: \(activity.averagePower ?? 0)")
                 activities.append(activity)
             }
         }
         return activities
     }
     
+    
+    /// Ensures that a valid Strava access token is available
+    ///
+    ///The function ensures that a valid (non-expired) Strava access token is available before making API requests. If the existing token is valid, it returns it immediately. If not, it attempts to refresh the token and return the new one, or throws an error if that fails.
+    ///
+    /// - Returns: Returns a Strava token of type `String`
     private func ensureValidToken() async throws -> String {
         if let token = await StravaAuthManager.shared.accessToken,
            let expiration = await StravaAuthManager.shared.tokenExpiration,
@@ -124,28 +142,33 @@ final class StravaActivityManager {
         return token
     }
     
+    
+    /// Parse Strava activity JSON data
+    ///
+    /// ``StravaActivity`` requires an ID and startDate. As such we first ensure they are present or else return out of the function. StartData is further refined here for simpler use in our desired return object.
+    ///
+    /// Strava API provides start and end locations as an [Double]. However,   ``StravaActivity`` utilizes individual values. Thus, we must first create the necessary local [Double] value before utilizing the desired array value using .first or .last notion.
+    ///
+    /// - Parameter dict: Parsing with a diction [String: Any]
+    /// - Returns: Returns the desired ``StravaActivity``
     private func parseActivity(from dict: [String: Any]) -> StravaActivity? {
         guard
             let id = dict["id"] as? Int,
-            let name = dict["name"] as? String,
-            let type = dict["type"] as? String,
-            let distance = dict["distance"] as? Double,
-            let duration = dict["elapsed_time"] as? Double,
             let startDateStr = dict["start_date"] as? String,
             let startDate = ISO8601DateFormatter().date(from: startDateStr)
         else {
             return nil
         }
-        
+ 
         let startLatLng = dict["start_latlng"] as? [Double]
         let endLatLng = dict["end_latlng"] as? [Double]
         
         return StravaActivity(
             id: String(id),
-            name: name,
-            type: type,
-            distance: distance,
-            duration: duration,
+            name: dict["name"] as? String,
+            type: dict["type"] as? String,
+            distance: dict["distance"] as? Double,
+            duration: dict["elapsed_time"] as? Double,
             startDate: startDate,
             calories: dict["calories"] as? Double,
             averageHeartRate: dict["average_heartrate"] as? Double,

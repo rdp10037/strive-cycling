@@ -63,6 +63,7 @@ struct DashboardView: View {
                 }
                
             }
+            .background(Color.background.gradient)
             .navigationTitle("My Activity")
             .scrollIndicators(.hidden)
             .refreshable {

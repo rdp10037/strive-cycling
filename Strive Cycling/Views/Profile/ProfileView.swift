@@ -84,6 +84,7 @@ struct ProfileView: View {
                    
                 }
             }
+            .background(Color.background.gradient)
             .navigationTitle("Profile")
             .refreshable {
                 await authVM.fetchAthleteStats()
