@@ -28,21 +28,10 @@ struct MainView: View {
                         Label("Sleep", systemImage: "bed.double")
                     }
                
-                ProfileMainView()
+                ProfileView()
                     .tabItem {
                         Label("Profile", systemImage: "person.crop.circle")
                     }
-            }
-            .onAppear {
-                print("TEST_KEY:", Bundle.main.object(forInfoDictionaryKey: "TEST_KEY") ?? "❌ MISSING")
-
-                let clientId = Bundle.main.object(forInfoDictionaryKey: "STRAVA_CLIENT_ID") as? String ?? "Missing"
-                               let clientSecret = Bundle.main.object(forInfoDictionaryKey: "STRAVA_CLIENT_SECRET") as? String ?? "Missing"
-                               
-                               print("✅ Client ID:", clientId)
-                               print("✅ Client Secret:", clientSecret)
-
-             //   showingStravaLinkSheet.toggle()
             }
         }
         .sheet(isPresented: $showingStravaLinkSheet) {

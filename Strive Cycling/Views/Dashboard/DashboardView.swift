@@ -34,21 +34,9 @@ struct DashboardView: View {
                     /// Ride Time Heat Map Section
                     HeatMapCalendarView()
                     
-                    
-                    
-                    Button("Connect with Strava") {
-                        authVm.connect()
-                    }
-               
-                    Button {
-                        UIApplication.shared.inAppNotification(adaptForDynamicIsland: true, timeout: 3.3, swipeToClose: true) {
-                            InAppNotificationPopOver(headline: "Testing", bodyText: "Testing", sfSymbol: nil, customImage: .stravaLogo)
-                        }
-                    } label: {
-                        Text("Test in app notifications")
-                    }
-                    
-                    
+                    Text("Recent Activities")
+                        .font(.title2)
+                        .fontWeight(.semibold)
                     if activityVM.isLoading {
                         ProgressView()
                     } else if let error = activityVM.errorMessage {

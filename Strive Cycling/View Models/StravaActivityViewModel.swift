@@ -10,8 +10,8 @@ import Combine
 
 @MainActor
 final class StravaActivityViewModel: ObservableObject {
+    
     @Published var activities: [StravaActivity] = []
-  //  @Published var activitiesCount: Int?
     @Published var isLoading = false
     @Published var errorMessage: String?
 
@@ -21,9 +21,8 @@ final class StravaActivityViewModel: ObservableObject {
 
         Task {
             do {
-                let activities = try await StravaActivityManager.shared.fetchRecentActivitiesAsync()
+                let activities = try await StravaActivityManager.shared.fetchRecentActivitiesAsync(count: 10)
                 self.activities = activities
-    //            self.activitiesCount = activities.count
             } catch {
                 self.errorMessage = error.localizedDescription
             }

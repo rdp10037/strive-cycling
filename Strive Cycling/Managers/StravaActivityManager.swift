@@ -18,13 +18,13 @@ struct StravaActivity: Identifiable, Codable {
     let calories: Double?
     let averageHeartRate: Double?
     let averagePower: Double?
-
+    
     let polyline: String?
     let startLatitude: Double?
     let startLongitude: Double?
     let endLatitude: Double?
     let endLongitude: Double?
-
+    
     let description: String?
     let totalElevationGain: Double?
     let startDateLocal: Date?
@@ -48,17 +48,17 @@ struct StravaActivity: Identifiable, Codable {
     let kilojoules: Double?
     let prCount: Int?
     let kudosCount: Int?
-
+    
     var decodedCoordinates: [CLLocationCoordinate2D] {
         guard let polyline = polyline else { return [] }
         return decodePolyline(polyline)
     }
-
+    
     var startCoordinate: CLLocationCoordinate2D? {
         guard let lat = startLatitude, let lon = startLongitude else { return nil }
         return .init(latitude: lat, longitude: lon)
     }
-
+    
     var endCoordinate: CLLocationCoordinate2D? {
         guard let lat = endLatitude, let lon = endLongitude else { return nil }
         return .init(latitude: lat, longitude: lon)
@@ -67,31 +67,26 @@ struct StravaActivity: Identifiable, Codable {
 
 final class StravaActivityManager {
     static let shared = StravaActivityManager()
-
+    
     private let baseURL = "https://www.strava.com/api/v3"
-
-    func fetchRecentActivitiesAsync() async throws -> [StravaActivity] {
+    
+    func fetchRecentActivitiesAsync(count: Int) async throws -> [StravaActivity] {
         let token = try await ensureValidToken()
-
-        let urlString = "\(baseURL)/athlete/activities?per_page=3"
+        
+        let urlString = "\(baseURL)/athlete/activities?per_page=\(count)"
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
-
+        
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+        
         let (data, _) = try await URLSession.shared.data(for: request)
-
-        // Print raw JSON
-        if let rawJSON = String(data: data, encoding: .utf8) {
-            print("\n🧾 Raw JSON Response:\n\(rawJSON)")
-        }
-
+        
         guard let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
             throw NSError(domain: "Invalid JSON", code: -1)
         }
-
+        
         var activities: [StravaActivity] = []
         for dict in jsonArray {
             if let activity = parseActivity(from: dict) {
@@ -109,14 +104,14 @@ final class StravaActivityManager {
         }
         return activities
     }
-
+    
     private func ensureValidToken() async throws -> String {
-        if let token = StravaAuthManager.shared.accessToken,
-           let expiration = StravaAuthManager.shared.tokenExpiration,
+        if let token = await StravaAuthManager.shared.accessToken,
+           let expiration = await StravaAuthManager.shared.tokenExpiration,
            Date() < expiration {
             return token
         }
-
+        
         let token = try await withCheckedThrowingContinuation { continuation in
             StravaAuthManager.shared.refreshAccessToken { success in
                 if success, let token = StravaAuthManager.shared.accessToken {
@@ -128,7 +123,7 @@ final class StravaActivityManager {
         }
         return token
     }
-
+    
     private func parseActivity(from dict: [String: Any]) -> StravaActivity? {
         guard
             let id = dict["id"] as? Int,
@@ -141,10 +136,10 @@ final class StravaActivityManager {
         else {
             return nil
         }
-
+        
         let startLatLng = dict["start_latlng"] as? [Double]
         let endLatLng = dict["end_latlng"] as? [Double]
-
+        
         return StravaActivity(
             id: String(id),
             name: name,
@@ -186,107 +181,3 @@ final class StravaActivityManager {
         )
     }
 }
-
-
-//import Foundation
-//
-//struct StravaActivity: Identifiable, Codable {
-//    let id: String
-//    let name: String
-//    let type: String
-//    let distance: Double
-//    let duration: Double
-//    let startDate: Date
-//    let calories: Double?
-//    let averageHeartRate: Double?
-//    let averagePower: Double?
-//    let polyline: String?
-//    let coordinates: [CLLocationCoordinate2D]?
-//}
-//
-//final class StravaActivityManager {
-//    static let shared = StravaActivityManager()
-//
-//    private let baseURL = "https://www.strava.com/api/v3"
-//
-//    func fetchRecentActivitiesAsync() async throws -> [StravaActivity] {
-//        let token = try await ensureValidToken()
-//
-//        let urlString = "\(baseURL)/athlete/activities?per_page=5"
-//        guard let url = URL(string: urlString) else {
-//            throw URLError(.badURL)
-//        }
-//
-//        var request = URLRequest(url: url)
-//        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//
-//        let (data, _) = try await URLSession.shared.data(for: request)
-//
-//        guard let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-//            throw NSError(domain: "Invalid JSON", code: -1)
-//        }
-//        
-//        // Print raw JSON
-//           if let rawJSON = String(data: data, encoding: .utf8) {
-//               print("\n🧾 Raw JSON Response:\n\(rawJSON)")
-//           }
-//
-//        var activities: [StravaActivity] = []
-//        for dict in jsonArray {
-//            if let activity = parseActivity(from: dict) {
-//                activities.append(activity)
-//            }
-//        }
-//        return activities
-//    }
-//
-//    private func ensureValidToken() async throws -> String {
-//        if let token = StravaAuthManager.shared.accessToken,
-//           let expiration = StravaAuthManager.shared.tokenExpiration,
-//           Date() < expiration {
-//            return token
-//        }
-//
-//        let success = try await withCheckedThrowingContinuation { continuation in
-//            StravaAuthManager.shared.refreshAccessToken { success in
-//                if success, let token = StravaAuthManager.shared.accessToken {
-//                    continuation.resume(returning: token)
-//                } else {
-//                    continuation.resume(throwing: NSError(domain: "Token refresh failed", code: -1))
-//                }
-//            }
-//        }
-//        return success
-//    }
-//
-//    private func parseActivity(from dict: [String: Any]) -> StravaActivity? {
-//        guard
-//            let id = dict["id"] as? Int,
-//            let name = dict["name"] as? String,
-//            let type = dict["type"] as? String,
-//            let distance = dict["distance"] as? Double,
-//            let duration = dict["elapsed_time"] as? Double,
-//            let startDateStr = dict["start_date"] as? String,
-//            let startDate = ISO8601DateFormatter().date(from: startDateStr)
-//        else {
-//            return nil
-//        }
-//
-//        let map = dict["map"] as? [String: Any]
-//        let polyline = map?["summary_polyline"] as? String
-//
-//        return StravaActivity(
-//            id: String(id),
-//            name: name,
-//            type: type,
-//            distance: distance,
-//            duration: duration,
-//            startDate: startDate,
-//            calories: dict["calories"] as? Double,
-//            averageHeartRate: dict["average_heartrate"] as? Double,
-//            averagePower: dict["average_watts"] as? Double,
-//            polyline: polyline
-//        )
-//    }
-//
-//}

@@ -15,7 +15,7 @@ struct OnboardingFlowView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 42) {
-                    // 🎉 Welcome
+        
                     VStack(spacing: 12) {
                         Image(.striveLogo)
                             .resizable()
@@ -34,8 +34,7 @@ struct OnboardingFlowView: View {
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
                     }
-                    
-                    // 🚀 Button
+                   
                     Button(action: {
                         showStravaView = true
                     }) {
