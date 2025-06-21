@@ -143,8 +143,10 @@ Planned and upcoming features:
 - Pagination and filtering for the activity history
 - Ride nutrition planning and recommendations
 - Deeper HealthKit integration (for metrics like weight, sleep, and steps)
+- Streaks, Badges, & Gamification
+- Widgets to stay on top of your riding and nutrition
 
-![Group 1000006261](https://github.com/user-attachments/assets/d49e573a-f32d-4250-87ad-bd21960cf781)
+![Group 1000006277](https://github.com/user-attachments/assets/e239e3c2-b8dd-4bfd-9e0f-5b33a58d9970)
 
 
 ---
