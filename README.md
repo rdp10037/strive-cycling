@@ -82,9 +82,30 @@ This project serves two purposes:
 
 ---
 
+## Architecture Overview
+
+- MVVM architecture with `@MainActor`-based ViewModels
+- Custom network layer using async/await and `URLSession`
+- Secure token storage using `KeychainHelper`
+- Local data storage using `@AppStorage` (for prototype state)
+
+---
+
+## Key Technologies Used
+
+- **SwiftUI**
+- **HealthKit**
+- **Strava API**
+- **Swift Charts**
+- **Swift Algorithms**
+- **DocC**
+- **Git & GitHub**
+
+---
+
 ## Core Features
 
-- **Strava OAuth2 Integration**: Securely connects to Strava, handling token storage and refresh via Keychain.
+- **Strava OAuth 2.0 Integration**: Securely connects to Strava, handling token storage and refresh via Keychain.
 - **Activity Feed**: Displays recent rides with map previews and performance stats.
 - **Activity Detail**: Allows users to log hydration, food intake, perceived exertion, and post-ride notes.
 - **Profile View**: Shows user name, avatar, and key metrics from Strava’s athlete and stats endpoints.
@@ -97,7 +118,7 @@ This project serves two purposes:
 
 This section shares some of the more unique implementations that may be useful or interesting to other developers.
 
-### 🗺️ Polyline Decoding & Map Rendering
+### Polyline Decoding & Map Rendering
 
 Strava returns activity route data as encoded polylines. This project includes a clean, reusable utility that:
 
@@ -115,24 +136,13 @@ This enables performant and visually engaging route previews even in list views.
 
 ---
 
----
-
-## Architecture Overview
-
-- MVVM architecture with `@MainActor`-based ViewModels
-- Custom network layer using async/await and `URLSession`
-- Secure token storage using `KeychainHelper`
-- Local data storage using `@AppStorage` (for prototype state)
-
----
-
 ## Future Features
 
 Planned and upcoming features:
-- Monthly activity heatmap based on total ride duration
+- Monthly activity heatmap based on total ride and planned ride duration
 - Pagination and filtering for the activity history
 - Ride nutrition planning and recommendations
-- HealthKit integration (for metrics like weight, sleep, and steps)
+- Deeper HealthKit integration (for metrics like weight, sleep, and steps)
 
 ![Group 1000006261](https://github.com/user-attachments/assets/d49e573a-f32d-4250-87ad-bd21960cf781)
 
@@ -141,9 +151,10 @@ Planned and upcoming features:
 
 ## Known Issues
 
+- **Heat-Map Data**: The existing heat-map implementation uses dummy data for prototyping and testing only at this time. No real activity duration data is displayed. This will be addressed in future updates.
 - **Calorie metric shows as 0**: Current logic fetches summaries only; full per-activity fetch is required to access calories per Strava API best practices.
 - **Mismatch in year-to-date stats**: Some stats (like YTD rides) show as 0 on Strive even though they appear correctly in the official Strava app.
-- **Limited nutrition logging**: Only basic hydration and food logging are supported. Data may not persist due to the lack of a backend.
+- **Limited nutrition logging**: Only basic hydration and food logging are supported. Data may not persist due to the lack of a backend. Nutrition logging will be expanded to support more in depth nutrition macros in the future and data persistence will be addressed with the implication of a full backend along side the first TestFlight beta version. 
 - **Minimal error handling**: Networking and decoding errors are not yet fully surfaced in the UI.
 
 ---
