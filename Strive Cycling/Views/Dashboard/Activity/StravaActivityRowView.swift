@@ -49,12 +49,14 @@ struct StravaActivityRowView: View {
                 
              
                 VStack(alignment: .leading, spacing: 8) {
+                    let distanceInMiles = Measurement(value: activity.distance ?? 0.0, unit: UnitLength.meters)
+                        .converted(to: .miles)
+                    let formattedDistance = distanceInMiles.formatted(.measurement(width: .abbreviated, usage: .road))
+                 
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(String(format: "%.1f", activity.distance ?? 0.0 / 1609.34)) // meters to miles
+                            Text(formattedDistance)
                                 .font(.headline)
-                            Text("mi")
-                                .font(.subheadline)
                         }
                         Text("Distance")
                             .font(.footnote)
@@ -63,7 +65,7 @@ struct StravaActivityRowView: View {
 
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(String(format: "%.0f", activity.duration ?? 0.0 / 60)) // seconds to minutes
+                            Text("\(Int((activity.duration ?? 0) / 60))") // seconds to minutes
                                 .font(.headline)
                             Text("min")
                                 .font(.subheadline)
@@ -74,13 +76,15 @@ struct StravaActivityRowView: View {
                     }
 
                     VStack(alignment: .leading) {
+                        
+                        
                         HStack {
-                            Text(String(format: "%.0f", activity.calories ?? 0))
+                            Text("\(Int(activity.averagePower ?? 0))")
                                 .font(.headline)
-                            Text("kcal")
+                            Text("w")
                                 .font(.subheadline)
                         }
-                        Text("Energy")
+                        Text("Avg Power")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }

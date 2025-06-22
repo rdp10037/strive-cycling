@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MainView: View {
-    @State private var showingStravaLinkSheet = false
     var body: some View {
         NavigationStack {
             TabView {
@@ -35,11 +34,7 @@ struct MainView: View {
             }
         }
         .background(Color.background)
-        .sheet(isPresented: $showingStravaLinkSheet) {
-            StravaPrimingView()
-                .presentationDetents([.large])
-                .interactiveDismissDisabled()
-        }
+
     }
 }
 

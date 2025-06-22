@@ -75,6 +75,11 @@ struct StravaPrimingView: View {
                 }
                 .padding(.top, 40)
                 .navigationTitle("Get Started")
+                .onChange(of: authVm.isConnected) {
+                    if authVm.isConnected == true {
+                        dismiss()
+                    }
+                }
             }
         }
     }
