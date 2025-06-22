@@ -5,58 +5,6 @@
 //  Created by Rob Pee on 6/20/25.
 //
 
-//import Foundation
-//
-//@MainActor
-//final class StravaAuthViewModel: ObservableObject {
-//
-//    @Published var isConnected = false
-//    @Published var errorMessage: String?
-//
-//    var isAuthorized: Bool {
-//        guard let token = StravaAuthManager.shared.accessToken,
-//              let expiration = StravaAuthManager.shared.tokenExpiration
-//        else {
-//            return false
-//        }
-//        return Date() < expiration
-//    }
-//
-//    func connect() {
-//        StravaAuthManager.shared.authorize { [weak self] success in
-//            DispatchQueue.main.async {
-//                self?.isConnected = success
-//                if !success {
-//                    self?.errorMessage = "Failed to connect to Strava."
-//                }
-//            }
-//        }
-//    }
-//
-//    func refreshTokenIfNeeded() async {
-//        let token = StravaAuthManager.shared.accessToken
-//        let expiration = StravaAuthManager.shared.tokenExpiration
-//
-//        if token == nil || (expiration != nil && Date() >= expiration!) {
-//            await withCheckedContinuation { continuation in
-//                StravaAuthManager.shared.refreshAccessToken { success in
-//                    continuation.resume()
-//                }
-//            }
-//        }
-//    }
-//
-//    func disconnect() {
-//        StravaAuthManager.shared.disconnect()
-//        isConnected = false
-//    }
-//
-//    var token: String? {
-//        StravaAuthManager.shared.accessToken
-//    }
-//}
-
-
 import Foundation
 
 struct StravaAthlete: Codable {
@@ -123,16 +71,22 @@ final class StravaAuthViewModel: ObservableObject {
         }
     }
     
+    /// Asynchronously fetches the authenticated athlete's profile from Strava and updates the view model state.
+    ///
+    /// This function uses `StravaAuthManager` to retrieve the current athlete's profile via the Strava API.
+    /// On success, it stores the result in the `athlete` property.
+    /// On failure, it updates the `errorMessage` property with a localized error description.
+    ///
+    /// > Tip: This function is typically called after successful authentication or token refresh.
     func fetchAthleteProfile() async {
         do {
             let athlete = try await StravaAuthManager.shared.fetchAthleteProfile()
             self.athlete = athlete
-            print("Athlete fetched successfully: \(athlete.id)")
-            print("Full Athlete Profile: \(athlete)")
         } catch {
             self.errorMessage = "Failed to fetch profile: \(error.localizedDescription)"
         }
     }
+    
     
     /// Refreshes the Strava access token if it is missing or expired.
     /// This ensures API calls are authorized with a valid token.
@@ -152,21 +106,29 @@ final class StravaAuthViewModel: ObservableObject {
     
     
     
+    /// Asynchronously fetches the authenticated athlete's stats from Strava and updates the view model state.
+    ///
+    /// This function uses the stored `athlete` object to extract the athlete's ID, then calls
+    /// `StravaAuthManager.fetchAthleteStats(athleteId:)` to retrieve their aggregated activity statistics.
+    ///
+    /// On success, it stores the stats in the `stats` property.
+    /// On failure, it sets an error message that can be displayed in the UI.
+    ///
+    /// This function should be called after the athlete profile has been successfully fetched.
     func fetchAthleteStats() async {
         guard let athleteId = athlete?.id else {
-            print("Error with Athlete ID in fetchAthleteStats(): Athlete ID is missing.")
             self.errorMessage = "Athlete ID is missing."
             return
         }
         
         do {
             let stats = try await StravaAuthManager.shared.fetchAthleteStats(athleteId: athleteId)
-            print("Stats: \(stats)")
             self.stats = stats
         } catch {
             self.errorMessage = "Failed to fetch stats: \(error.localizedDescription)"
         }
     }
+
     
     
     
