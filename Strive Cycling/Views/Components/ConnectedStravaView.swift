@@ -68,6 +68,11 @@ struct ConnectStravaView: View {
             }
             .padding(.top, 40)
             .navigationTitle("Get Started")
+            .onChange(of: authVm.isConnected) {
+                if authVm.isConnected == true {
+                    showOnboardingView.toggle()
+                }
+            }
         }
     }
 }

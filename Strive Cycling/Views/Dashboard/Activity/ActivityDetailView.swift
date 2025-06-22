@@ -23,16 +23,22 @@ struct ActivityDetailView: View {
     @AppStorage("activityNutritionData") private var nutritionData: Data = Data()
 
     var body: some View {
+        
+        // MARK: Need to come back to fetch full activity data from the activity_id endpoint rather then the recent activities one
+        /// https://developers.strava.com/docs/reference/#api-models-SummaryActivity
+        /// https://developers.strava.com/docs/reference/     Get Activity (getActivityById)
+        /// https://developers.strava.com/docs/reference/#api-models-DetailedActivity
+        
         Form {
             Section {
                 Text(activity.name ?? "NA")
                             .font(.title2)
                             .bold()
-                        if let desc = activity.description, !desc.isEmpty {
-                            Text(desc)
-                                .font(.body)
-                                .foregroundStyle(.secondary)
-                        }
+//                        if let desc = activity.description, !desc.isEmpty {
+//                            Text(desc)
+//                                .font(.body)
+//                                .foregroundStyle(.secondary)
+//                        }
                     }
             
             Section(header: Text("Activity Summary")) {
@@ -41,9 +47,9 @@ struct ActivityDetailView: View {
                 let distanceInMiles = Measurement(value: activity.distance ?? 0.0, unit: UnitLength.meters)
                     .converted(to: .miles)
                 let formattedDistance = distanceInMiles.formatted(.measurement(width: .abbreviated, usage: .road))
+                
                 summaryRow("Distance", formattedDistance)
-
-                summaryRow("Duration", "\(Int(activity.duration ?? 0 / 60)) min")
+                summaryRow("Duration", "\(Int((activity.duration ?? 0) / 60)) min")
                 summaryRow("Start", activity.startDate.formatted(date: .abbreviated, time: .shortened))
                 summaryRow("Calories", "\(Int(activity.calories ?? 0)) kcal")
 

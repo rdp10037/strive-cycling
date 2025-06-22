@@ -29,17 +29,17 @@ struct StravaESView: View {
                               .multilineTextAlignment(.center)
                               .padding(.horizontal)
 
-                          Button(action: {
-                              showingStravaLinkSheet.toggle()
-                          }) {
-                              Label("Get Started", systemImage: "link")
-                                  .padding()
-                                  .frame(maxWidth: .infinity)
-                                  .background(Color.stravaOrange)
-                                  .foregroundColor(.white)
-                                  .cornerRadius(12)
-                          }
-                          .padding(.horizontal)
+//                          Button(action: {
+//                              showingStravaLinkSheet.toggle()
+//                          }) {
+//                              Label("Get Started", systemImage: "link")
+//                                  .padding()
+//                                  .frame(maxWidth: .infinity)
+//                                  .background(Color.stravaOrange)
+//                                  .foregroundColor(.white)
+//                                  .cornerRadius(12)
+//                          }
+//                          .padding(.horizontal)
                       }
                       .frame(maxWidth: .infinity, maxHeight: .infinity)
                       .padding()
