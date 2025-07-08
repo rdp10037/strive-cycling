@@ -18,7 +18,7 @@ struct StravaActivityRowView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
-                        Text(activity.name ?? "Untitled")
+                        Text(activity.name ?? "NA")
                             .font(.headline)
                             .foregroundStyle(.primary)
                             .lineLimit(1)
@@ -32,7 +32,7 @@ struct StravaActivityRowView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                    Text(activity.sportType ?? activity.type ?? "Ride")
+                    Text(activity.type ?? "NA")
                         .font(.body)
                         .lineLimit(1)
                         .multilineTextAlignment(.leading)
@@ -42,53 +42,51 @@ struct StravaActivityRowView: View {
             }
 
             HStack {
+
                 ActivityMapSnapshotView(coordinates: activity.decodedCoordinates)
                     .frame(width: UIScreen.main.bounds.width * 0.6, height: 160)
 
+                
+             
                 VStack(alignment: .leading, spacing: 8) {
-                    
-                    // Distance
                     let distanceInMiles = Measurement(value: activity.distance ?? 0.0, unit: UnitLength.meters)
                         .converted(to: .miles)
                     let formattedDistance = distanceInMiles.formatted(.measurement(width: .abbreviated, usage: .road))
-
+                 
                     VStack(alignment: .leading) {
-                        Text(formattedDistance)
-                            .font(.headline)
+                        HStack {
+                            Text(formattedDistance)
+                                .font(.headline)
+                        }
                         Text("Distance")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
 
-                    // Duration (from movingTime)
-                    if let movingTime = activity.movingTime {
-                        let minutes = Int(movingTime) / 60
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text("\(minutes)")
-                                    .font(.headline)
-                                Text("min")
-                                    .font(.subheadline)
-                            }
-                            Text("Moving Time")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text("\(Int((activity.duration ?? 0) / 60))") // seconds to minutes
+                                .font(.headline)
+                            Text("min")
+                                .font(.subheadline)
                         }
+                        Text("Duration")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
 
-                    // Average Power (from averageWatts)
-                    if let watts = activity.averageWatts {
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text("\(Int(watts))")
-                                    .font(.headline)
-                                Text("w")
-                                    .font(.subheadline)
-                            }
-                            Text("Avg Power")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
+                    VStack(alignment: .leading) {
+                        
+                        
+                        HStack {
+                            Text("\(Int(activity.averagePower ?? 0))")
+                                .font(.headline)
+                            Text("w")
+                                .font(.subheadline)
                         }
+                        Text("Avg Power")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .frame(minWidth: 90, minHeight: 160)
@@ -100,42 +98,45 @@ struct StravaActivityRowView: View {
 }
 
 
-
 #Preview {
     StravaActivityRowView(activity: StravaActivity(
-        id: 123456,
+        id: "123456",
         name: "Morning Ride",
         type: "Ride",
-        sportType: "VirtualRide",
-        distance: 40233.0,
-        movingTime: 3780,
-        elapsedTime: 4000,
-        totalElevationGain: 450.0,
+        distance: 40233.0, // ~25 miles
+        duration: 3780.0,  // ~63 minutes
         startDate: Date(),
+        calories: 850.0,
+        averageHeartRate: 142.5,
+        averagePower: 185.0,
+        polyline: nil,
+        startLatitude: 37.7749,
+        startLongitude: -122.4194,
+        endLatitude: 37.8049,
+        endLongitude: -122.4294,
+        description: "Rode through Golden Gate Park and up Twin Peaks.",
+        totalElevationGain: 450.0,
         startDateLocal: Date(),
         timezone: "America/Los_Angeles",
+        commute: false,
+        trainer: false,
+        manual: false,
+        locationCity: "San Francisco",
+        locationState: "CA",
+        locationCountry: "USA",
+        elevHigh: 302.4,
+        elevLow: 15.2,
         averageSpeed: 5.9,
         maxSpeed: 12.8,
         averageCadence: 87.0,
         averageTemp: 65.0,
-        averageWatts: 185.0,
+        sufferScore: 75.0,
+        maxHeartrate: 174.0,
+        hasHeartrate: true,
         deviceWatts: true,
         kilojoules: 680.0,
-        hasHeartrate: true,
-        averageHeartrate: 142.5,
-        maxHeartrate: 174.0,
-        commute: false,
-        trainer: true,
-        manual: false,
         prCount: 3,
-        kudosCount: 19,
-        sufferScore: 75,
-        description: "Rode through Golden Gate Park and up Twin Peaks.",
-        locationCity: "San Francisco",
-        locationState: "CA",
-        locationCountry: "USA",
-        startLatlng: [37.7749, -122.4194],
-        endLatlng: [37.8049, -122.4294],
-        map: .init(id: "map123", summaryPolyline: nil)
+        kudosCount: 19
     ))
 }
+

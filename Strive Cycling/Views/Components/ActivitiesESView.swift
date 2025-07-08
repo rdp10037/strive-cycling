@@ -31,9 +31,7 @@ struct ActivitiesESView: View {
                               .padding(.horizontal)
 
                           Button(action: {
-                              Task {
-                                  await activityVM.fetchRecentActivities()
-                              }
+                              activityVM.fetchRecentActivities()
                           }) {
                               Label("Sync Activities", systemImage: "link")
                                   .padding()
@@ -45,7 +43,7 @@ struct ActivitiesESView: View {
                           .padding()
         }
                   
-
+    
     }
 }
 

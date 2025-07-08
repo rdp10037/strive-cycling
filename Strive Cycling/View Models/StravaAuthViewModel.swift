@@ -123,7 +123,6 @@ final class StravaAuthViewModel: ObservableObject {
         
         do {
             let stats = try await StravaAuthManager.shared.fetchAthleteStats(athleteId: athleteId)
-            print("Fetched stats: \(stats)")
             self.stats = stats
         } catch {
             self.errorMessage = "Failed to fetch stats: \(error.localizedDescription)"

@@ -49,7 +49,7 @@ struct DashboardView: View {
                         } else {
                             ForEach(activityVM.activities) { activity in
                                 NavigationLink {
-                                    ActivityDetailView(activityId: activity.id)
+                                    ActivityDetailView(activity: activity)
                                 } label: {
                                     StravaActivityRowView(activity: activity)
                                 }
@@ -76,10 +76,10 @@ struct DashboardView: View {
                     }
                 }
                 .padding()
-                .task {
+                .onAppear {
                     if authVm.isAuthorized {
                         if activityVM.activities.isEmpty {
-                            await activityVM.fetchRecentActivities()
+                            activityVM.fetchRecentActivities()
                         }
                     }
                 }
@@ -88,7 +88,7 @@ struct DashboardView: View {
             .navigationTitle("My Activity")
             .scrollIndicators(.hidden)
             .refreshable {
-                await activityVM.fetchRecentActivities()
+                activityVM.fetchRecentActivities()
             }
             .sheet(isPresented: $showingStravaLinkSheet) {
                   /// On dismiss, check if the user has a valid token, if so show Strava disconnected in app dynamic island notification

@@ -8,7 +8,7 @@
 import Foundation
 
 struct ActivityNutrition: Codable, Identifiable {
-    let id: Int
+    let id: String // Use from Strava activity ID
     var waterMl: Int?
     var gels: Double?
     var gelType: String?

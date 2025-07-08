@@ -20,15 +20,11 @@ struct ContentView: View {
             .onAppear {
                   showOnboarding = !hasCompletedOnboarding
                 
-               /// If the user is onboarded proceed to checking token status. We have a 2.5 sec delay here to given the authVm.refreshTokenIfNeeded func in our task block below  time to attempt refresh.
                 if hasCompletedOnboarding {
                     if !authVm.isAuthorized {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                            showStravaReAuthSheet.toggle()
-                        }
+                        showStravaReAuthSheet.toggle()
                     }
                 }
-                
               }
               .sheet(isPresented: $showOnboarding) {
                   /// Mark onboarding as finished on dismiss of onboarding sheet
@@ -64,10 +60,7 @@ struct ContentView: View {
                       .interactiveDismissDisabled()
               }
               .task {
-                  if hasCompletedOnboarding {
-                      await authVm.refreshTokenIfNeeded()
-                      await authVm.fetchAthleteProfile()
-                  }
+                  await authVm.fetchAthleteProfile()
               }
     }
 }
