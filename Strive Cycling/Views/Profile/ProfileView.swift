@@ -86,10 +86,13 @@ struct ProfileView: View {
                     .padding(.top, 40)
                     .task {
                         if authVM.stats == nil {
+                            if authVM.athlete == nil {
+                                await authVM.fetchAthleteProfile()
+                            }
                             await authVM.fetchAthleteStats()
                         }
-                        
                     }
+
                 }
                 .background(Color.background.gradient)
                 .navigationTitle("Profile")
