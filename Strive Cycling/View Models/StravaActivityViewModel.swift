@@ -27,6 +27,7 @@ final class StravaActivityViewModel: ObservableObject {
     /// - Resets `isLoading` to `false`
     ///
     /// This method is called when the dashboard or activity feed is loaded or refreshed.
+    /// - Note: Last updated on July 8, 2025. Updated by Robert Pee -  rdp10037@gmail.com.
     func fetchRecentActivities() async {
         isLoading = true
         errorMessage = nil
@@ -40,6 +41,37 @@ final class StravaActivityViewModel: ObservableObject {
             isLoading = false
     }
     
+    
+    /// Fetches Strava activities for a specified date range and appends them to the existing activity list.
+    ///
+    /// - Parameters:
+    ///   - startDate: The beginning of the date range (inclusive).
+    ///   - endDate: The end of the date range (exclusive).
+    /// - This function deduplicates activities based on ID and appends new ones to the existing `activities` list.
+    ///
+    /// - Note: Last updated on July 8, 2025. Updated by Robert Pee -  rdp10037@gmail.com.
+    func fetchActivitiesForRange(for startDate: Date, endDate: Date) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            let newActivities = try await StravaActivityManager.shared.fetchActivitiesForDateRange(after: startDate, before: endDate)
+            
+            // Deduplicate by ID
+            let existingIDs = Set(activities.map { $0.id })
+            let uniqueNewActivities = newActivities.filter { !existingIDs.contains($0.id) }
+            
+            self.activities.append(contentsOf: uniqueNewActivities)
+            self.activities.sort { $0.startDate > $1.startDate }
+            
+        } catch {
+            self.errorMessage = error.localizedDescription
+        }
+
+        isLoading = false
+    }
+
+    
     /// Loads the detailed activity object for the given Strava activity ID.
     ///
     /// This method fetches a full detailed activity from the `/activities/{id}`
@@ -50,7 +82,8 @@ final class StravaActivityViewModel: ObservableObject {
     /// during the async operation.
     ///
     /// - Parameter activityId: The Strava activity ID to fetch in detail.
-    /// - Note: This method should be called from the main actor context.
+    /// - Tip: This method should be called from the main actor context.
+    /// - Note: Last updated on July 8, 2025. Updated by Robert Pee -  rdp10037@gmail.com.
     func loadDetailedActivity(for activityId: Int) async {
         isLoading = true
         errorMessage = nil
@@ -62,7 +95,5 @@ final class StravaActivityViewModel: ObservableObject {
                 self.errorMessage = error.localizedDescription
             }
             isLoading = false
-        
     }
-    
 }

@@ -8,61 +8,6 @@
 import Foundation
 import CoreLocation
 
-// MARK: Old StravaActivity Struct
-//struct StravaActivity: Identifiable, Codable {
-//    let id: String      // Required
-//    let name: String?
-//    let type: String?
-//    let distance: Double?
-//    let duration: Double?
-//    let startDate: Date  // Required
-//    let calories: Double?
-//    let averageHeartRate: Double?
-//    let averagePower: Double?
-//    let polyline: String?
-//    let startLatitude: Double?
-//    let startLongitude: Double?
-//    let endLatitude: Double?
-//    let endLongitude: Double?
-//    let description: String?
-//    let totalElevationGain: Double?
-//    let startDateLocal: Date?
-//    let timezone: String?
-//    let commute: Bool?
-//    let trainer: Bool?
-//    let manual: Bool?
-//    let locationCity: String?
-//    let locationState: String?
-//    let locationCountry: String?
-//    let elevHigh: Double?
-//    let elevLow: Double?
-//    let averageSpeed: Double?
-//    let maxSpeed: Double?
-//    let averageCadence: Double?
-//    let averageTemp: Double?
-//    let sufferScore: Double?
-//    let maxHeartrate: Double?
-//    let hasHeartrate: Bool?
-//    let deviceWatts: Bool?
-//    let kilojoules: Double?
-//    let prCount: Int?
-//    let kudosCount: Int?
-//    
-//    var decodedCoordinates: [CLLocationCoordinate2D] {
-//        guard let polyline = polyline else { return [] }
-//        return decodePolyline(polyline)
-//    }
-//    
-//    var startCoordinate: CLLocationCoordinate2D? {
-//        guard let lat = startLatitude, let lon = startLongitude else { return nil }
-//        return .init(latitude: lat, longitude: lon)
-//    }
-//    
-//    var endCoordinate: CLLocationCoordinate2D? {
-//        guard let lat = endLatitude, let lon = endLongitude else { return nil }
-//        return .init(latitude: lat, longitude: lon)
-//    }
-//}
 
 // MARK: Strava Activity from /activities endpoint
 struct StravaActivity: Identifiable, Codable {
@@ -330,6 +275,61 @@ final class StravaActivityManager {
 
         return try decoder.decode([StravaActivity].self, from: data)
     }
+    
+    
+    /// Fetches Strava activities within a specified date range using the `/athlete/activities` endpoint.
+    ///
+    /// This method fetches all activities that occurred **after** the `after` date and **before** the `before` date.
+    /// Strava expects UNIX timestamps (in seconds) for both parameters.
+    ///
+    /// This method supports pagination of results if more than 30 activities exist in the time window.
+    ///
+    /// - Parameters:
+    ///   - after: The start of the date range (inclusive).
+    ///   - before: The end of the date range (exclusive).
+    /// - Returns: An array of `StravaActivity` objects sorted by start date descending.
+    /// - Throws: Any networking or decoding error encountered during the request.
+    func fetchActivitiesForDateRange(after: Date, before: Date) async throws -> [StravaActivity] {
+        let token = try await ensureValidToken()
+
+        var allActivities: [StravaActivity] = []
+        var page = 1
+        let perPage = 50 // max is 200 but 50 is safer for UI and rate limits
+
+        while true {
+            let afterUnix = Int(after.timeIntervalSince1970)
+            let beforeUnix = Int(before.timeIntervalSince1970)
+
+            guard let url = URL(string: "\(baseURL)/athlete/activities?after=\(afterUnix)&before=\(beforeUnix)&page=\(page)&per_page=\(perPage)") else {
+                throw StravaError.invalidURL
+            }
+
+            var request = URLRequest(url: url)
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw StravaError.invalidResponse
+            }
+
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            decoder.dateDecodingStrategy = .iso8601
+
+            let pageActivities = try decoder.decode([StravaActivity].self, from: data)
+            allActivities += pageActivities
+
+            if pageActivities.count < perPage {
+                break // Done paging
+            }
+
+            page += 1
+        }
+
+        return allActivities.sorted(by: { $0.startDate > $1.startDate })
+    }
+
     
     /// Fetches a detailed activity object from the Strava API using the provided activity ID.
     ///
