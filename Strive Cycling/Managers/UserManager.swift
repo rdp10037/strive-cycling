@@ -26,12 +26,9 @@ struct DBUser: Codable {
     let isMerchantAdmin: Bool?
     let merchantAdminId: [String]?
     let userAvatar: String?
-    
     // let stravaConnected: Bool?
     // let stravaAthleteId: String?
     
-
-  
     init (auth: AuthDataResultModel) {
         self.userId = auth.uid
         self.email = auth.email
@@ -47,9 +44,6 @@ struct DBUser: Codable {
         self.isMerchantAdmin = false
         self.merchantAdminId = []
         self.userAvatar = ""
-        
-        
-
     }
     
     init (
@@ -67,7 +61,6 @@ struct DBUser: Codable {
         isMerchantAdmin: Bool? = nil,
         merchantAdminId: [String]? = nil,
         userAvatar: String? = nil
-        
     ) {
         self.userId = userId
         self.email = email
@@ -84,8 +77,7 @@ struct DBUser: Codable {
         self.merchantAdminId = merchantAdminId
         self.userAvatar = userAvatar
     }
-    
-    
+   
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
         case email = "email"
@@ -151,6 +143,16 @@ final class UserManager {
     
     private func userDocument(userID: String) -> DocumentReference {
         userCollection.document(userID)
+    }
+    
+    /// User activities sub-collection ref
+    private func userActivitiesCollection(userId: String) -> CollectionReference {
+        userDocument(userID: userId).collection("activities")
+    }
+    
+    /// User activity Doc ref
+    private func userActivitiesDocument(userId: String, activityId: String) -> DocumentReference {
+        userActivitiesCollection(userId: userId).document(activityId)
     }
 
 

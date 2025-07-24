@@ -19,6 +19,8 @@ struct Strive_CyclingApp: App {
     
     @StateObject var stravaAuthVm = StravaAuthViewModel()
     @StateObject var stravaActivityVm = StravaActivityViewModel()
+    @StateObject var authVm = AuthenticationViewModel()
+    @StateObject var profileVm = ProfileViewModel()
     
     var body: some Scene {
         WindowGroup {
@@ -41,6 +43,8 @@ struct Strive_CyclingApp: App {
                 })
                 .environmentObject(stravaAuthVm)
                 .environmentObject(stravaActivityVm)
+                .environmentObject(authVm)
+                .environmentObject(profileVm)
         }
     }
 }

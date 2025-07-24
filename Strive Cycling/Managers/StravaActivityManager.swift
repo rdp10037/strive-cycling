@@ -7,7 +7,7 @@
 
 import Foundation
 import CoreLocation
-
+import FirebaseFirestore
 
 // MARK: Strava Activity from /activities endpoint
 struct StravaActivity: Identifiable, Codable {
