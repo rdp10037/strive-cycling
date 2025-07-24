@@ -14,7 +14,19 @@
 				<string>strive</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Google Sign In</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.591399816667-da69odf8nmhau3k20md52kc667thrmm3</string>
+			</array>
+		</dict>
 	</array>
+	<key>GIDClientID</key>
+	<string>591399816667-da69odf8nmhau3k20md52kc667thrmm3.apps.googleusercontent.com</string>
 	<key>STRAVA_CLIENT_ID</key>
 	<string>$(STRAVA_CLIENT_ID)</string>
 	<key>STRAVA_CLIENT_SECRET</key>

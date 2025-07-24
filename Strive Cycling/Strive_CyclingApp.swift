@@ -6,16 +6,19 @@
 //
 
 import SwiftUI
+import Firebase
 
 @main
 struct Strive_CyclingApp: App {
+    
+    init() {
+        FirebaseApp.configure()
+    }
     
     @State private var overlayWindow: PassThroughWindow?
     
     @StateObject var stravaAuthVm = StravaAuthViewModel()
     @StateObject var stravaActivityVm = StravaActivityViewModel()
-    
-    
     
     var body: some Scene {
         WindowGroup {

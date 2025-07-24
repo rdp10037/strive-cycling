@@ -98,7 +98,7 @@ struct HeatMapCalendarView: View {
         ScrollViewReader { proxy in
         
             ScrollView(.horizontal, showsIndicators: false) {
-                
+            
                 HStack(spacing: 20) {
                     
                     ForEach(months, id: \.self) { month in
